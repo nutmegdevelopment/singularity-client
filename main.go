@@ -511,6 +511,10 @@ func main() {
 	flag.StringVar(&requestJSONFile, "request-json", "", "The request JSON file.")
 	flag.Parse()
 
+	if requestJSONFile == "" || deployJSONFile == "" || singularityURL == "" {
+		log.Fatal("Missing required arguments - run 'singularity-client -h' for argument details.")
+	}
+
 	// read in the two required config files.
 	requestJSON := readFileOrDie(requestJSONFile)
 	deployJSON := readFileOrDie(deployJSONFile)
