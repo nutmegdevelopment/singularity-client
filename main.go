@@ -1,4 +1,4 @@
-package main
+package main // import "github.com/nutmegdevelopment/singularity-client"
 
 import (
 	"bytes"
