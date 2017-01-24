@@ -25,6 +25,8 @@ const (
 	logRetryDelay                = 3000 * time.Millisecond
 	taskIDRetryDelay             = 2000 * time.Millisecond
 	getTaskIDRetryTimeoutSeconds = 120
+	defaultRequestFilename       = "singularity-request.json"
+	defaultDeployFilename        = "singularity-deploy.json"
 )
 
 var (
@@ -507,8 +509,8 @@ func getRequestID(config []byte) (string, error) {
 func main() {
 	flag.BoolVar(&debug, "debug", false, "debug output.")
 	flag.StringVar(&singularityURL, "singularity-url", "", "The singularity server url.")
-	flag.StringVar(&deployJSONFile, "deploy-json", "", "The deploy JSON file.")
-	flag.StringVar(&requestJSONFile, "request-json", "", "The request JSON file.")
+	flag.StringVar(&deployJSONFile, "deploy-json", defaultDeployFilename, "The deploy JSON file.")
+	flag.StringVar(&requestJSONFile, "request-json", defaultRequestFilename, "The request JSON file.")
 	flag.Parse()
 
 	if requestJSONFile == "" || deployJSONFile == "" || singularityURL == "" {
