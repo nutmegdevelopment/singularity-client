@@ -1,0 +1,16 @@
+{
+	"ImportPath": "github.com/nutmegdevelopment/singularity-client",
+	"GoVersion": "go1.8",
+	"GodepVersion": "v74",
+	"Deps": [
+		{
+			"ImportPath": "github.com/Sirupsen/logrus",
+			"Comment": "v0.8.7-49-gcdaedc6",
+			"Rev": "cdaedc68f2894175ac2b3221869685602c759e71"
+		},
+		{
+			"ImportPath": "golang.org/x/sys/unix",
+			"Rev": "c200b10b5d5e122be351b67af224adc6128af5bf"
+		}
+	]
+}
