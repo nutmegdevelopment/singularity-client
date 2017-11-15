@@ -22,7 +22,7 @@ const (
 	singularityDeployURL         = "%s/api/deploys"
 	singularityTaskCompleteURL   = "%s/api/history/tasks?requestId=%s&deployId=%s"
 	httpPostTimeout              = time.Duration(30 * time.Second)
-	logRetryDelay                = 3000 * time.Millisecond
+	defaultLogRetryDelay         = 3000 * time.Millisecond
 	taskIDRetryDelay             = 2000 * time.Millisecond
 	getTaskIDRetryTimeoutSeconds = 120
 	defaultRequestFilename       = "singularity-request.json"
@@ -35,6 +35,7 @@ var (
 	debug           bool
 	singularityURL  string
 	isComplete      = false
+	logRetryDelay   time.Duration
 )
 
 // SingularityRequest ...
@@ -511,6 +512,7 @@ func main() {
 	flag.StringVar(&singularityURL, "singularity-url", "", "The singularity server url.")
 	flag.StringVar(&deployJSONFile, "deploy-json", defaultDeployFilename, "The deploy JSON file.")
 	flag.StringVar(&requestJSONFile, "request-json", defaultRequestFilename, "The request JSON file.")
+	flag.DurationVar(&logRetryDelay, "log-retry-delay", defaultLogRetryDelay, "The delay between checking for log entries.")
 	flag.Parse()
 
 	if requestJSONFile == "" || deployJSONFile == "" || singularityURL == "" {
