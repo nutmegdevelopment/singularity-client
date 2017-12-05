@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"os"
 	"time"
 
 	log "github.com/Sirupsen/logrus"
@@ -219,11 +220,16 @@ func hasTaskCompleted(requestID string, deployID string) bool {
 		}).Debug("Found request history item")
 
 		switch requestHistoryItems[0].LastTaskState {
-		case "TASK_FINISHED", "TASK_FAILED", "TASK_KILLED", "TASK_LOST", "TASK_LOST_WHILE_DOWN", "TASK_ERROR":
+		case "TASK_FINISHED":
 			log.WithFields(log.Fields{
 				"state": requestHistoryItems[0].LastTaskState,
 			}).Info("Task completed")
 			return true
+		case "TASK_FAILED", "TASK_KILLED", "TASK_LOST", "TASK_LOST_WHILE_DOWN", "TASK_ERROR":
+			log.WithFields(log.Fields{
+				"state": requestHistoryItems[0].LastTaskState,
+			}).Info("ERROR: Task failed")
+			os.Exit(1)
 		}
 	} else {
 		log.WithFields(log.Fields{
