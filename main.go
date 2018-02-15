@@ -569,14 +569,6 @@ func main() {
 		}).Fatal("Error creating the request")
 	}
 
-	err = runRequest(requestID)
-	if err != nil {
-		log.WithFields(log.Fields{
-			"error":      err,
-			"request-id": requestID,
-        }).Fatal("Error running the request")
-	}
-
 	err = createDeploy(deployJSON, deployID)
 	if err != nil {
 		log.WithFields(log.Fields{
@@ -584,6 +576,14 @@ func main() {
 			"request-id": requestID,
 			"deploy-id":  deployID,
 		}).Fatal("Error creating the deploy")
+	}
+
+	err = runRequest(requestID)
+	if err != nil {
+		log.WithFields(log.Fields{
+			"error":      err,
+			"request-id": requestID,
+        }).Fatal("Error running the request")
 	}
 
 	//
