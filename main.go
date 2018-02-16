@@ -20,6 +20,7 @@ const (
 	singularityActiveTasksURL    = "%s/api/tasks/active"
 	singularityLogURL            = "%s/api/sandbox/%s/read?path=%s&length=30000&offset=%d"
 	singularityRequestURL        = "%s/api/requests"
+	singularityRunRequestURL     = "%s/api/requests/request/%s/run"
 	singularityDeployURL         = "%s/api/deploys"
 	singularityTaskCompleteURL   = "%s/api/history/tasks?requestId=%s&deployId=%s"
 	httpPostTimeout              = time.Duration(30 * time.Second)
@@ -440,6 +441,23 @@ func createRequest(requestJSON []byte, requestID string) error {
 	return nil
 }
 
+// Run a singularity request.
+func runRequest(requestID string) error {
+	url := fmt.Sprintf(singularityRunRequestURL, singularityURL, requestID)
+	responseJSON, err := postSingularityAPI(url, "")
+	if err != nil {
+		log.WithFields(log.Fields{
+			"response":   string(responseJSON),
+			"request-id": requestID,
+		}).Debug("Error running request")
+		return err
+	}
+
+	log.Info("Request ran")
+
+	return nil
+}
+
 // Create a singularity deploy.
 func createDeploy(deployJSON []byte, deployID string) error {
 	url := fmt.Sprintf(singularityDeployURL, singularityURL)
@@ -558,6 +576,14 @@ func main() {
 			"request-id": requestID,
 			"deploy-id":  deployID,
 		}).Fatal("Error creating the deploy")
+	}
+
+	err = runRequest(requestID)
+	if err != nil {
+		log.WithFields(log.Fields{
+			"error":      err,
+			"request-id": requestID,
+        }).Fatal("Error running the request")
 	}
 
 	//
