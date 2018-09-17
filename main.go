@@ -529,6 +529,13 @@ func main() {
 	requestJSON := readFileOrDie(requestJSONFile)
 	deployJSON := readFileOrDie(deployJSONFile)
 
+	// Unmarshall the request JSON
+	var request SingularityRequest
+	err := json.Unmarshal(requestJSON, &request)
+	if err != nil {
+		log.WithFields(log.Fields{"error": err}).Fatal("Unable to decode request JSON!")
+	}
+
 	deployID, err := getDeployID(deployJSON)
 	if err != nil {
 		log.WithFields(log.Fields{
@@ -560,15 +567,16 @@ func main() {
 		}).Fatal("Error creating the deploy")
 	}
 
-	//
-	taskID, err := getTaskIDWithRetry(requestID, deployID, getTaskIDRetryTimeoutSeconds)
-	if err != nil {
-		log.WithFields(log.Fields{
-			"error": err,
-		}).Fatal("Unable to get the taskID so cannot continue!")
-	}
+	if request.RequestType != "SCHEDULED" {
+		taskID, err := getTaskIDWithRetry(requestID, deployID, getTaskIDRetryTimeoutSeconds)
+		if err != nil {
+			log.WithFields(log.Fields{
+				"error": err,
+			}).Fatal("Unable to get the taskID so cannot continue!")
+		}
 
-	// This is the last step so once log tailing has ended then the
-	// whole process has effectively ended.
-	tailLogs(taskID, requestID, deployID)
+		// This is the last step so once log tailing has ended then the
+		// whole process has effectively ended.
+		tailLogs(taskID, requestID, deployID)
+	}
 }
