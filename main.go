@@ -34,7 +34,6 @@ var (
 	requestJSONFile string
 	deployJSONFile  string
 	debug           bool
-	noLogTail       bool
 	singularityURL  string
 	isComplete      = false
 	logRetryDelay   time.Duration
@@ -516,7 +515,6 @@ func getRequestID(config []byte) (string, error) {
 
 func main() {
 	flag.BoolVar(&debug, "debug", false, "debug output.")
-	flag.BoolVar(&noLogTail, "no-log-tail", false, "Do not wait for task ID and tail logs.")
 	flag.StringVar(&singularityURL, "singularity-url", "", "The singularity server url.")
 	flag.StringVar(&deployJSONFile, "deploy-json", defaultDeployFilename, "The deploy JSON file.")
 	flag.StringVar(&requestJSONFile, "request-json", defaultRequestFilename, "The request JSON file.")
@@ -530,6 +528,13 @@ func main() {
 	// read in the two required config files.
 	requestJSON := readFileOrDie(requestJSONFile)
 	deployJSON := readFileOrDie(deployJSONFile)
+
+	// Unmarshall the request JSON
+	var request SingularityRequest
+	err := json.Unmarshal(requestJSON, &request)
+	if err != nil {
+		log.WithFields(log.Fields{"error": err}).Fatal("Unable to decode request JSON!")
+	}
 
 	deployID, err := getDeployID(deployJSON)
 	if err != nil {
@@ -562,7 +567,7 @@ func main() {
 		}).Fatal("Error creating the deploy")
 	}
 
-	if !noLogTail {
+	if request.RequestType != "SCHEDULED" {
 		taskID, err := getTaskIDWithRetry(requestID, deployID, getTaskIDRetryTimeoutSeconds)
 		if err != nil {
 			log.WithFields(log.Fields{
