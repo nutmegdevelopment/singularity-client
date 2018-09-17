@@ -34,6 +34,7 @@ var (
 	requestJSONFile string
 	deployJSONFile  string
 	debug           bool
+	noLogTail       bool
 	singularityURL  string
 	isComplete      = false
 	logRetryDelay   time.Duration
@@ -515,6 +516,7 @@ func getRequestID(config []byte) (string, error) {
 
 func main() {
 	flag.BoolVar(&debug, "debug", false, "debug output.")
+	flag.BoolVar(&noLogTail, "no-log-tail", false, "Do not wait for task ID and tail logs.")
 	flag.StringVar(&singularityURL, "singularity-url", "", "The singularity server url.")
 	flag.StringVar(&deployJSONFile, "deploy-json", defaultDeployFilename, "The deploy JSON file.")
 	flag.StringVar(&requestJSONFile, "request-json", defaultRequestFilename, "The request JSON file.")
@@ -560,15 +562,16 @@ func main() {
 		}).Fatal("Error creating the deploy")
 	}
 
-	//
-	taskID, err := getTaskIDWithRetry(requestID, deployID, getTaskIDRetryTimeoutSeconds)
-	if err != nil {
-		log.WithFields(log.Fields{
-			"error": err,
-		}).Fatal("Unable to get the taskID so cannot continue!")
-	}
+	if !noLogTail {
+		taskID, err := getTaskIDWithRetry(requestID, deployID, getTaskIDRetryTimeoutSeconds)
+		if err != nil {
+			log.WithFields(log.Fields{
+				"error": err,
+			}).Fatal("Unable to get the taskID so cannot continue!")
+		}
 
-	// This is the last step so once log tailing has ended then the
-	// whole process has effectively ended.
-	tailLogs(taskID, requestID, deployID)
+		// This is the last step so once log tailing has ended then the
+		// whole process has effectively ended.
+		tailLogs(taskID, requestID, deployID)
+	}
 }
